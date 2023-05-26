@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="./style.css">
+  
+  <title>Solicitação de Empréstimo</title>
+  
+</head>
+<body>
+  <h1>Solicitação de Empréstimo</h1>
+  <form id="loanForm">
+    <label for="personType">Tipo da Pessoa:</label>
+    <div>
+      <input type="radio" name="personType" value="PF" checked> PF
+      <input type="radio" name="personType" value="PJ"> PJ
+    </div>
+
+    <label for="documentType">Documento:</label>
+    <div>
+      <input type="radio" name="documentType" value="CPF" checked> CPF
+      <input type="radio" name="documentType" value="CNPJ"> CNPJ
+    </div>
+
+    <label for="name">Nome da Pessoa/Empresa:</label>
+    <input type="text" id="name">
+
+    <label for="documentNumber">Nº do Documento:</label>
+    <input type="text" id="documentNumber">
+
+    <label for="activeDebt">Valor da dívida ativa atual:</label>
+    <input type="number" id="activeDebt">
+
+    <label for="loanAmount">Valor do empréstimo solicitado:</label>
+    <input type="number" id="loanAmount">
+
+    <input type="submit" value="Enviar">
+  </form>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('loanForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Impede o envio do formulário
+
+      var personType = document.querySelector('input[name="personType"]:checked').value;
+      var documentType = document.querySelector('input[name="documentType"]:checked').value;
+      var name = document.getElementById('name').value;
+      var documentNumber = document.getElementById('documentNumber').value;
+      var activeDebt = parseFloat(document.getElementById('activeDebt').value);
+      var loanAmount = parseFloat(document.getElementById('loanAmount').value);
+
+      var isValid = true;
+      var errorMessage = '';
+
+      if (name.length < 3 || name.length > 100) {
+        isValid = false;
+        errorMessage = 'Nome deve ter entre 3 e 100 caracteres.';
+
+      } else if(personType === 'PF' && documentType === 'CNPJ'){
+          errorMessage = 'Pessoa e documento não coresponde';
+      }
+      
+      else {
+        if (documentType === 'CPF') {
+          if (documentNumber.length !== 11 || isNaN(documentNumber)) {
+            isValid = false;
+            errorMessage = 'CPF inválido. Deve conter 11 dígitos numéricos.';
+          }
+        } else if (documentType === 'CNPJ') {
+          if (documentNumber.length !== 14 || isNaN(documentNumber)) {
+            isValid = false;
+            errorMessage = 'CNPJ inválido. Deve conter 14 dígitos numéricos.';
+          }
+        } 
+      }
+      if (isValid) {
+        if (loanAmount >= 50000) {
+          displayResult('Empréstimo negado. Valor solicitado é maior que R$50.000,00.');
+        } else if (loanAmount > activeDebt / 2) {
+          displayResult('Empréstimo negado. Valor solicitado é maior que a metade da dívida ativa.');
+        } else if (activeDebt === 0 || loanAmount <= 50000){
+          displayResult('Empréstimo aprovado.');
+        }
+      } 
+      
+      else {
+        displayResult(errorMessage, true);
+      }
+    });
+
+    function displayResult(message, isError = false) {
+      var resultElement = document.getElementById('result');
+      resultElement.textContent = message;
+
+      if (isError) {
+        resultElement.classList.add('error');
+      } else {
+        resultElement.classList.remove('error');
+      }
+    }
+  </script>
+</body>
+</html>
+
